@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>WriteUp TSCTF-J 2025 | 老北京大杀器</title><meta name="author" content="李达亨娶了徐必成"><meta name="copyright" content="李达亨娶了徐必成"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="当初比赛提交上去的WP是PDF，那么借此学习一下markdown Writeup 2025.10.13 TSCTF-J 老北京大杀器作为学习者，这篇 WP 不只为了证明成绩，也起到一个知识梳理的作用。 Ret作为 pwn 第一题，我们必须要先知道函数调用的原理。X86 指令集架构约定函数调用：将返回地址、父函数栈底 rbp 依次压栈， rbp 设为当前栈顶指针所指地址（mov rbp , rsp）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WriteUp TSCTF-J 2025">
+<meta property="og:url" content="http://example.com/2025/10/30/blog2/index.html">
+<meta property="og:site_name" content="老北京大杀器">
+<meta property="og:description" content="当初比赛提交上去的WP是PDF，那么借此学习一下markdown Writeup 2025.10.13 TSCTF-J 老北京大杀器作为学习者，这篇 WP 不只为了证明成绩，也起到一个知识梳理的作用。 Ret作为 pwn 第一题，我们必须要先知道函数调用的原理。X86 指令集架构约定函数调用：将返回地址、父函数栈底 rbp 依次压栈， rbp 设为当前栈顶指针所指地址（mov rbp , rsp）">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-10-30T10:39:59.000Z">
+<meta property="article:modified_time" content="2025-10-30T11:11:43.087Z">
+<meta property="article:author" content="李达亨娶了徐必成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "WriteUp TSCTF-J 2025",
+  "url": "http://example.com/2025/10/30/blog2/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2025-10-30T10:39:59.000Z",
+  "dateModified": "2025-10-30T11:11:43.087Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "李达亨娶了徐必成",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/10/30/blog2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'WriteUp TSCTF-J 2025',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">老北京大杀器</span></a><a class="nav-page-title" href="/"><span class="site-name">WriteUp TSCTF-J 2025</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">WriteUp TSCTF-J 2025</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-10-30T10:39:59.000Z" title="Created 2025-10-30 18:39:59">2025-10-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-10-30T11:11:43.087Z" title="Updated 2025-10-30 19:11:43">2025-10-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>当初比赛提交上去的WP是PDF，那么借此学习一下markdown</p>
+<h1 id="Writeup-2025-10-13-TSCTF-J-老北京大杀器"><a href="#Writeup-2025-10-13-TSCTF-J-老北京大杀器" class="headerlink" title="Writeup 2025.10.13 TSCTF-J 老北京大杀器"></a>Writeup 2025.10.13 TSCTF-J 老北京大杀器</h1><p>作为学习者，这篇 WP 不只为了证明成绩，也起到一个知识梳理的作用。</p>
+<h2 id="Ret"><a href="#Ret" class="headerlink" title="Ret"></a>Ret</h2><p>作为 pwn 第一题，我们必须要先知道函数调用的原理。<br>X86 指令集架构约定函数调用：将返回地址、父函数栈底 rbp 依次压栈， rbp 设为当前栈顶指针所指地址（mov rbp , rsp） 建立新的栈帧。然后将会为函数自身局部变量开辟栈空间。<br>IDA 静态分析<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F"><br>发现 backdoor（）和 vuln（）<br>打开看，vuln 开了一个大小 16 的数组，使用 gets（）读入任意长度的字节数，存在栈溢出，backdoor 是真的 backdoor（内涵 dinner），内含真正的 system（“&#x2F;bin&#x2F;sh”）<br>那么非常简单，只需要覆盖返回地址为 backdoor 即可。<br>IDA 查看 backdoor mov rbp , rsp 指令地址，顺手看到地址前有 0x40，没有开启 PIE，直接用就行。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(2)"><br>为什么不直接用函数地址？因为指令集架构约定我们要栈 16 字节对齐。在函数返回地址前加入 ret gadget 也可起到同样作用。<br>Payload：16 字节填满 buf 数组，+8 字节覆盖 rbp+返回地址 0x400677（用 p64（）转化为 8 字节字节流）<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(3)"></p>
+<h1 id="EZ-syscall"><a href="#EZ-syscall" class="headerlink" title="EZ-syscall"></a>EZ-syscall</h1><p>静态分析二进制文件：<br>Vuln（）函数存在栈溢出，读入整整 512 字节，很明显，我们要返回到 magic（）<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(4)"><br>我们看看 magic（）有什么<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(5)"><br>嗯，映入眼帘的是__asm{ syscall；LINUX – sys_rt_sigreturn}<br>Deepseek 告诉我，这段代码执行了系统调用 sigreturn。<br>继续搜索，发现这个调用的作用是在调用处中断，同时从栈上读取系统为其保存好的信号帧，设置所有寄存器的值。<br>我们并不关心 linux 系统的信号中断机制，我们只需要知道调用这个系统函数，会从栈上读取可改变寄存器值的信号帧，这给了我们篡改寄存器值的可乘之机。<br>我们的目的，在于通过伪造信号帧设置寄存器值，使程序调用 execve，获取 shell。<br>这个过程可以想象的到是系统叫停程序，程序开始躺平，忘记了自己之前是做什么的，这时候系统要记下来它之前是干什么的，让程序继续工作时便于想起来，很巧的是这个程序有栈溢出漏洞，我们可以通过栈溢出伪造一个单子给程序，告诉程序你之前是要调取 shell。<br>在伪造的 frame 中，设置 rip（程序计数器）为 syscall 地址，rax（存储系统调用号）为 59（execve 的系统调用号）<br>Execve 系统调用共有三个参数，x64 指令集架构约定前六个参数通过寄存器传递，后面的参数再通过栈传递。<br>我们要设置 rdi 为“&#x2F;bin&#x2F;sh”的地址。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(6)"><br>于是我们的 frame 便完成了。<br>Payload &#x3D; 偏移量（数组+rbp） + frame<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(7)"></p>
+<h1 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h1><p>当程序自身没有准备好的后门函数时，我们要调用 system（“&#x2F;bin&#x2F;sh”）就要用到动态链接库 libc.so 中的 system 函数。<br>由于 ASLR 的开启，这一切的基础，都要从泄露 libc 基地址开始。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(8)"><br>检查程序保护机制，好在 PIE 未开启，可用 PLT GOT 表对 libc 基地址进行泄露<br>静态分析：<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(9)"><br>很好，依旧栈溢出。<br>ROP 思路：首先劫持程序执行流，打印 puts 在 got 表中的地址，这就是程序运行时puts 在虚拟内存中的实际地址。用这个实际地址-libc 中 puts 的偏移地址，即可获得libc 基地址。<br>这一切都需要一个至关重要的 gadget：pop rdi ， ret<br>找一下，发现了它：<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(10)"><br>PLT 表本质上是代码段，所以我们的 payload 只需返回到 plt 中 puts 的位置，并设置参数（rdi）为 got.puts，即可打印获取 puts 实际地址。<br>而我们最终的目的是获取 shell，所以一次溢出只是为了获取 libc 基地址，还不够，我们要在打印后重返 main 函数，再次进行一波溢出。<br>有了 libc 基地址就等于什么都有了，我们成了这个程序的主人。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(11)"></p>
+<h1 id="Sentences"><a href="#Sentences" class="headerlink" title="Sentences"></a>Sentences</h1><p>Checksec<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(12)"><br>编译保护全部打开<br>关键在于 PIE，这意味着程序基址也被随机化。<br>静态分析<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(13)"><br>Printf（buf），格式化字符串漏洞。<br>这个漏洞的原理在于当 printf 只接收一个格式化字符串时，它不会去核对后面的参数数量是否与格式化字符串中的占位符数目相等，而是直接去寄存器或栈空间中寻找“参数“，使得我们能够通过%n$p来读取栈上的任意地址。<br>这个漏洞还有读取地址指向的字符串、向地址写入的作用。<br>在 vuln 函数中，向大小为 264 字节的 buf 读入 256 字节数据，不存在栈溢出。<br>由于 PIE 打开，可知我们要用格式化字符串漏洞完成两个任务，泄露程序基址、调用libc 中的 system（“&#x2F;bin&#x2F;sh“）<br>我们要用 printf 读取栈中的内容，关键在一个参数——$前的偏移量。我们要设置特定的偏移量，读取程序中某个指令运行时的实际地址，从而泄露程序基地址。<br>使用 gdb 进行动态调试，在 printf（）处设下断点，输入测试字符串，查看栈内容<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(14)"><br>我们需要找到 main + 78 和 __libc_start_main + 128 的偏移量。<br>在 IDA 中找到它们的偏移地址。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(15)"><br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(16)"><br>接下来是确定偏移量。<br>输入一个探针字符串并查看栈内容，经过一次次的尝试，我们确定了可以输出我们需<br>要的函数的实际地址的偏移量。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(17)"><br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(18)"><br>看栈内容，怎么确定偏移量？数出来！<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(19)"><br>于是第一段 payload 非常简单，一个字符串<br>io.sendline(b”%43$pyyyy%65$p”)<br>使用 python 自带的一些加工，我们就可以从返回的字符串中剪切得到程序和 libc 的基地址，再加加减减一些偏移量，就得到了程序和 libc 的基地址。<br>现在，还有两次发送机会，该如何获取 shell？<br>我们拥有了程序和 libc 的基地址，问题在于如何执行我们需要的指令，之前我们通过栈溢出直接覆写，而这次我们要利用格式化字符串漏洞。<br>经过无数的搜索，找到 fmtstr_payload()函数，这是 pwntools 中一个自带工具，实现修改任意内存。<br>这是一个非常简单实用的小工具。<br>回看程序运行流程，read 后紧接着一个 printf 函数，想到修改 printf 的 got 表，修改为system 的地址，这时第二次输入后，会直接执行 printf，这时的 printfgot 表中存放的<br>已经是 system 了，可是这次由于没有参数，并不会返回 shell，那么，第三次输入是如何将“&#x2F;bin&#x2F;sh”传递给 system 的？因为 printf 以 buf 为参数，所以 system 会把 buf 作为它的参数，要知道 system 会在第三次输入后再次被调用，所以第三段 payload 直接<br>把”&#x2F;bin&#x2F;sh”发送给 buf 即可。<br>在 gdb 中找到测试字符串被存放的偏移量，偏移量为 8.<br>第二次和第三次的 payload 包含在如下的完整 exp 中<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(20)"><br>哦对了，那个 0x4028，很明显，是 printf_got 的偏移量，从.&#x2F;pwn 里找到的。</p>
+<p>本次招新赛 8 道题做出 4 个，还算没白来？<br>主播主播，为什么你第三天一道题也没提交？不是主播没做题，是做了一天题没解出来。<br>第一天直接秒前三道，剩下的一天都被格式化字符串所困扰，十一还是玩爽了，于是主播直接现学格式化字符串。<br>那栈迁移怎么办？放了，拉倒吧。<br>于是第二天上午过了 sentence 后，开始研究这道鸡巴晚餐。</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;下面是解了一半没拿到 flag 的 writeup，有兴趣就看看。感谢&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<h1 id="Dinner-chall"><a href="#Dinner-chall" class="headerlink" title="Dinner-chall"></a>Dinner-chall</h1><p>“你能吃到正确的晚餐吗？“<br>不管了，先给 IDA 吃。<br>上来两个 func 函数。点开看看，发现一个溢出都没有，func2 的输入少的可怜，只有最多 72 个字节，那溢出个屁啊，先不想怎么栈溢出，发现 NX 开着，shellcode 也不行，溢出不了，没法 ROP，没法 ret2libc，没法 ret2syscall。<br>所有思路堵死了？这时候来看看这个 backdoor。<br>你为什么是大写的 System？<br>点开 System 一看，666 演都不演直接告诉我自己是个假的。<br>那“&#x2F;bin&#x2F;sh“还包含在程序里的意义是什么？<br>所以。现在只有一个出口，看一看 func1 和 func2 究竟有什么联系。<br>虽然 vuln1 和 vuln2 各自没有办法形成溢出，但发现一个点：vuln1 读入 256 字节，覆盖了 buf 和 v2 两个数组，这似乎在暗示什么。<br>执行 func1 后立即执行 func2，并且 func2 中有一个致命的破绽，没有对局部变量进行<br>初始化。这意味着我可以填满 buf，从而控制 v1 的内容，实现绕过 scanf 只能读入一个整数的限制，这栈溢出不就来了？<br>至于如何让 scanf 不改变 v1 的内容呢？丢给它一个字符就行。<br>之前的只是猜想，使用 gdb 进行一波验证：<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(21)"><br>向 buf 填入 256 个 7，向 scanf 丢入一个字符，发现 rsp+Ch 处：0x7fffffffe264 的位置即是 v1，有足足 9 亿多，再也不用担心不能溢出了。<br>那么现在能溢出了。又当如何呢？<br>题目给了 libc.so.6，ret2libc 当然是最好的选择。结果您猜怎么着，这么大一个程序，<br>没有 pop rdi, ret！那我 ret2 个屁！除了 libc，我还能 ret2syscall？IDA CTRL + F，又是没有。后来又了解到 csu、万能 gadget 一些东西，也无法在这道题中用到。<br>一切的一切都指向这个 gadget：pop rdi， ret<br>你为什么偏偏是 64 位的？<br>我只好设计一个 payload，ret 到了 backdoor，检验能否栈溢出。很好，栈溢出是没问题的。可是之后呢？<br>我没招了。<br><img src="/home/mlq/photos/%E6%8B%96%E6%94%BE%E7%9A%84%E5%9B%BE%E5%83%8F(22)"><br>还有一个 hardsyscall，写了一半炸缸了。<br>就这样吧。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">李达亨娶了徐必成</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2025/10/30/blog2/">http://example.com/2025/10/30/blog2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related  no-desc" href="/2025/10/30/blog3/" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2"></div></div></div></a><a class="pagination-related" href="/2025/10/30/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2-citation-2/" title="枕风宿雪多年，我与虎谋早餐。"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">枕风宿雪多年，我与虎谋早餐。</div></div><div class="info-2"><div class="info-item-1">This is a stupid markdown.</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">李达亨娶了徐必成</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Writeup-2025-10-13-TSCTF-J-%E8%80%81%E5%8C%97%E4%BA%AC%E5%A4%A7%E6%9D%80%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">Writeup 2025.10.13 TSCTF-J 老北京大杀器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ret"><span class="toc-number">1.1.</span> <span class="toc-text">Ret</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#EZ-syscall"><span class="toc-number">2.</span> <span class="toc-text">EZ-syscall</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Pop"><span class="toc-number">3.</span> <span class="toc-text">Pop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Sentences"><span class="toc-number">4.</span> <span class="toc-text">Sentences</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Dinner-chall"><span class="toc-number">5.</span> <span class="toc-text">Dinner-chall</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/blog3/" title="Untitled">Untitled</a><time datetime="2025-10-30T11:11:57.000Z" title="Created 2025-10-30 19:11:57">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/blog2/" title="WriteUp TSCTF-J 2025">WriteUp TSCTF-J 2025</a><time datetime="2025-10-30T10:39:59.000Z" title="Created 2025-10-30 18:39:59">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2-citation-2/" title="枕风宿雪多年，我与虎谋早餐。">枕风宿雪多年，我与虎谋早餐。</a><time datetime="2025-10-30T09:21:15.000Z" title="Created 2025-10-30 17:21:15">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/hello-world/" title="Hello World">Hello World</a><time datetime="2025-10-30T04:29:20.341Z" title="Created 2025-10-30 12:29:20">2025-10-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By 李达亨娶了徐必成</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.1"></script><script src="/js/main.js?v=5.5.1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
